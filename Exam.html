@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaScript Online Exam</title>
+
+<style>
+body{
+  font-family: Arial, sans-serif;
+  background:#f4f6f8;
+  margin:0;
+}
+.container{
+  max-width:700px;
+  margin:40px auto;
+  background:#fff;
+  padding:25px;
+  border-radius:10px;
+  box-shadow:0 4px 10px rgba(0,0,0,.1);
+}
+.hidden{display:none}
+h1,h2,h3{text-align:center}
+.question{font-weight:bold;margin-bottom:10px}
+.options label{
+  display:block;
+  margin-bottom:8px;
+  cursor:pointer;
+}
+button{
+  width:100%;
+  padding:12px;
+  background:#2563eb;
+  color:#fff;
+  border:none;
+  border-radius:6px;
+  font-size:16px;
+  cursor:pointer;
+}
+#timer{
+  text-align:right;
+  font-weight:bold;
+  color:red;
+  margin-bottom:10px;
+}
+input[type="text"]{
+  width:100%;
+  padding:10px;
+  margin-bottom:15px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container" id="loginBox">
+  <h1>JavaScript Online Exam</h1>
+  <p>Enter your name to start the exam</p>
+  <input type="text" id="username" placeholder="Your Name">
+  <button onclick="startExam()">Start Exam</button>
+</div>
+
+<div class="container hidden" id="examBox">
+  <h3 id="welcome"></h3>
+  <div id="timer">02:00</div>
+  <div id="questionBox"></div>
+  <button onclick="nextQuestion()">Next Question</button>
+</div>
+
+<div class="container hidden" id="resultBox">
+  <h2>Exam Result</h2>
+  <p id="resultText" style="text-align:center;font-size:18px;"></p>
+</div>
+
+<script>
+let index = 0;
+let score = 0;
+let user = "";
+let time = 120;
+let timerInterval;
+
+const questions = [
+{q:"What is JavaScript?",o:["Browser","Programming Language","Database","Operating System"],a:1},
+{q:"Which HTML tag is used for JavaScript?",o:["<js>","<script>","<javascript>","<code>"],a:1},
+{q:"Which keyword declares a constant?",o:["let","var","const","set"],a:2},
+{q:"Which value is Boolean?",o:["true","10","hello","null"],a:0},
+{q:"Which symbol is used for arrays?",o:["{}","()","[]","<>"],a:2},
+{q:"What does DOM stand for?",o:["Document Object Model","Data Object Method","Digital Order Mode","None"],a:0},
+{q:"Which function shows a popup alert?",o:["console.log()","alert()","print()","prompt()"],a:1},
+{q:"Which operator compares both value and type?",o:["==","=","===","!="],a:2},
+{q:"What does NaN mean?",o:["Not a Name","Not a Number","Null","None"],a:1},
+{q:"JavaScript is mainly used for?",o:["Frontend","Backend","Both","None"],a:2}
+];
+
+function startExam(){
+  user = username.value.trim();
+  if(user === ""){
+    alert("Please enter your name");
+    return;
+  }
+  loginBox.classList.add("hidden");
+  examBox.classList.remove("hidden");
+  welcome.innerText = "Welcome, " + user;
+  showQuestion();
+}
+
+function startTimer(){
+  clearInterval(timerInterval);
+  time = 120;
+  updateTimer();
+  timerInterval = setInterval(()=>{
+    time--;
+    updateTimer();
+    if(time <= 0){
+      clearInterval(timerInterval);
+      autoNext();
+    }
+  },1000);
+}
+
+function updateTimer(){
+  let min = Math.floor(time / 60);
+  let sec = time % 60;
+  timer.innerText =
+    `${String(min).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
+}
+
+function showQuestion(){
+  let q = questions[index];
+  let html = `<div class="question">${index + 1}. ${q.q}</div><div class="options">`;
+  q.o.forEach((opt,i)=>{
+    html += `<label>
+      <input type="radio" name="ans" value="${i}"> ${opt}
+    </label>`;
+  });
+  html += `</div>`;
+  questionBox.innerHTML = html;
+  startTimer();
+}
+
+function nextQuestion(){
+  checkAnswer(true);
+}
+
+function autoNext(){
+  checkAnswer(false);
+}
+
+function checkAnswer(manual){
+  let selected = document.querySelector('input[name="ans"]:checked');
+  if(manual && !selected){
+    alert("Please select an answer");
+    return;
+  }
+  if(selected && parseInt(selected.value) === questions[index].a){
+    score++;
+  }
+  index++;
+  if(index < questions.length){
+    showQuestion();
+  }else{
+    clearInterval(timerInterval);
+    examBox.classList.add("hidden");
+    resultBox.classList.remove("hidden");
+    resultText.innerText =
+      `${user}, you scored ${score} / ${questions.length}`;
+  }
+}
+</script>
+
+</body>
+</html>
